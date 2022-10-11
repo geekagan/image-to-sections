@@ -1,9 +1,23 @@
 # Package: image-to-sections
 
 ## Description:
-> 主要功能是 将 大图片做成切片
+> 主要功能：
 >
-> 提供 横切 和 竖切 两种切片方式
+> 1. 将 大图片做成切片; 提供 横切 和 竖切 两种切片方式;    --> getBigImageSectionFiles()
+>
+> 其它功能：
+> 
+> 1. 获取图片的缩略图；                 --> imageFileToThumbFile()
+> 
+> 2. 获取图片的 canvas dom 对象；       --> imageToCanvas()
+> 
+> 3. 获取图片的 canvas 切片数组；       --> getImageCanvasSections()
+>
+> 4. 获取图片的 canvas 横向切片数组；   --> getImageCanvasSectionsH()
+>
+> 5. 获取图片的 canvas 纵向切片数组；   --> getImageCanvasSectionsV()
+>
+> 6. canvas 对象转为 blob 二进制数据；  --> canvasToBlob()
 
 ## Usage:
 > 安装：
