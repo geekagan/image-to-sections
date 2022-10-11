@@ -19,6 +19,7 @@
     cutDirection: options.cutDirection || 'horizontal', 
     allowZoom: options.allowZoom || false
   }
+  console.log('options 1 --------> ', options)
   // 把 imageFile 转为 image 实例
   const source = URL.createObjectURL(imgFile) // 参考： https://developer.mozilla.org/zh-CN/docs/Web/API/URL/createObjectURL
   const newImg = new Image()
@@ -28,6 +29,7 @@
   let loadedImg = await imageLoaded(newImg)
   // zoom image 实例
   loadedImg = zoomImageForSection(loadedImg, options)
+  console.log(loadedImg.width, loadedImg.height)
   // 实例已经加载完成，不再需要 source, 释放之前已经存在的、通过调用 URL.createObjectURL() 创建的 URL 对象;
   URL.revokeObjectURL(source); 
   // 获取 与 options.cutDirection 相对应的 canvas 切片
@@ -60,6 +62,7 @@ export function zoomImageForSection (loadedImg, options={}) {
     cutDirection: options.cutDirection || 'horizontal', 
     allowZoom: options.allowZoom || false
   }
+  console.log('options ---> ', options)
   if (!options.allowZoom) return loadedImg
   switch (options.cutDirection) {
     case 'horizontal':
@@ -70,6 +73,7 @@ export function zoomImageForSection (loadedImg, options={}) {
       loadedImg.height = options.sectionHeight
       loadedImg.width = Math.round(loadedImg.naturalWidth * loadedImg.height / loadedImg.naturalWidth)
   } 
+  console.log('---> ', loadedImg.width, loadedImg.height)
   return loadedImg
 }
 

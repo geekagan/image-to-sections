@@ -47,10 +47,12 @@
  *                    cutDirection: 描述：图片的切向； 
  *                                  可选： 'horizontal'<横切> | 'vertical'<纵切>; 
  *                                  默认： 'horizontal';
- *                    allowZoom: 是否允许缩放；可选：true | false; 默认： false
+ *                    allowZoom: 描述：是否允许缩放；可选：true | false; 默认： false；
+                                 为 true 时: 图片成比例缩放之后，再进行切分；
  *
  * @introduction 1. 当 cutDirection==='horizontal' 时，sectionHeight 起作用，sectionWidth 不起作用
  *               2. 当 cutDirection==='vertical' 时，sectionHeight 不起作用，sectionWidth 起作用
+ *               3. 当为 allowZoom===true 时，sectionWidth 和 sectionHeight 都会生效；
  *     
  * @return {Array} fileList: [File, ...]
  */
@@ -102,7 +104,7 @@
  *                                  默认： 'horizontal';
  *
  * @introduction 1. 当 cutDirection==='horizontal' 时，sectionHeight 起作用，sectionWidth 不起作用
- *              2. 当 cutDirection==='vertical' 时，sectionHeight 不起作用，sectionWidth 起作用  
+ *               2. 当 cutDirection==='vertical' 时，sectionHeight 不起作用，sectionWidth 起作用  
  *
  * @returns {Array} canvasSections: [<canvas>, ...]
  */
