@@ -1,0 +1,18 @@
+{
+  "name": "image-to-sections",
+  "version": "0.1.0",
+  "description": "big image to image sections",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "image",
+    "sections",
+    "canvas",
+    "image",
+    "files"
+  ],
+  "author": "jcy",
+  "license": "ISC"
+}
