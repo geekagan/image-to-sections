@@ -1,6 +1,6 @@
 {
   "name": "image-to-sections",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "big image to image sections",
   "main": "index.js",
   "scripts": {
