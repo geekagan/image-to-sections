@@ -36,10 +36,14 @@
   // TEST：append to document.body
   // canvasSections.forEach(itemCanvas => document.body.append(itemCanvas)) 
   // 获取 canvas 切片转 Blob 数组
-  const blobPms = canvasSections.map(canvasItem => canvasToBlob(canvasItem))
-  const blobResult = await Promise.all(blobPms)
-  // Blob 数组 转 File 数组
-  const fileList = blobResult.map((itemBlob, index) => new File([itemBlob], `section-${index}.png`, {type: itemBlob.type, lastModified: Date.now()}))
+  // const blobPms = canvasSections.map(canvasItem => canvasToBlob(canvasItem))
+  // const blobResult = await Promise.all(blobPms)
+  // Blob 数组 转为 imageFile 数组
+  // const fileList = blobResult.map((itemBlob, index) => new File([itemBlob], `section-${index}.png`, {type: itemBlob.type, lastModified: Date.now()}))
+  // canvas 切片数组直接转为 imageFile 数组
+  const imageFilePms = canvasSections.map((canvasItem, index) => canvasToImageFile(canvasItem, { imageName: `section-${index}`, transType: 'image/png' }))
+  const fileList = await Promise.all(imageFilePms)
+  // returns
   return fileList
 }
 
@@ -269,10 +273,8 @@ export async function imageFileToThumbFile (imgFile, options={}) {
   // thumb canvas 转换为 image file
   // const thumbBlob = await canvasToBlob(thumbCanvas) // thumbCanvas transform to thumbBlob
   // thumbFile = new File([thumbBlob], `thumb-image.png`, {type: thumbBlob.type, lastModified: Date.now()})
-
+  // canvas 转换为 image file
   thumbFile = await canvasToImageFile(thumbCanvas, { imageName: 'thumb-image', transType: 'image/png' })
-
-
   return thumbFile
 }
 
@@ -295,14 +297,24 @@ export function canvasToBlob (canvasObj, transType, transQuality) {
   return promise
 }
 
-// TODO: 验证与使用
+/**
+ * @description: 将 canvas 对象转为 imageFile
+ * @param {Object} canvasObj 
+ * @param {Object} options 
+ *                    transType: 要转为的 image 格式；
+ *                    transQuality: 图片质量； 可选： 0-1；默认： 1；
+ *                    imageName: 转成图片的名字；默认： 'image-file'
+ *                    suffix: 图片格式 后缀； 默认： 'png';
+ *                    lastModified: 自定义最后修改时间；默认： Date.now()
+ * @returns {Promise} promise: resolve(imageFile)
+ */
 export async function canvasToImageFile (canvasObj, options={}) {
   options = {
     transType: options.transType || 'image/png',
     transQuality: options.transQuality || 1,
     imageName: options.imageName || 'image-file',
     suffix: options.transType ? options.transType.split('/')[1] : 'png',
-    lastModified: Date.now()
+    lastModified: options.lastModified || Date.now()
   }
   const promise = new Promise((resolve) => {
     canvasObj.toBlob(blob =>  {
@@ -321,6 +333,6 @@ export default {
   getImageCanvasSections,
   getImageCanvasSectionsH,
   getImageCanvasSectionsV,
-  canvasToBlob, // TODO: 不做对外暴露功能使用，可做为工具函数
-  canvasToImageFile // TODO:
+  canvasToBlob,
+  canvasToImageFile
 }

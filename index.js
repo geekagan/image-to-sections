@@ -14,5 +14,6 @@ export default {
   getImageCanvasSections,
   getImageCanvasSectionsH,
   getImageCanvasSectionsV,
-  canvasToBlob
+  canvasToBlob,
+  canvasToImageFile
 }

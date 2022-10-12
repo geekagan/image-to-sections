@@ -18,6 +18,8 @@
 > 5. 获取图片的 canvas 纵向切片数组；   --> getImageCanvasSectionsV()
 >
 > 6. canvas 对象转为 blob 二进制数据；  --> canvasToBlob()
+>
+> 7. canvas 对象转为 image file;      --> canvasToImageFile()
 
 ## Usage:
 > 安装：
@@ -155,6 +157,21 @@
  * @param {Number} transQuality: 图片品质；可选：0--1； 默认： 1
  *
  * @returns {Promise} promise
+ */
+```
+
+>- canvasToImageFile(canvasObj, options={})
+```
+/**
+ * @description: 将 canvas 对象转为 imageFile
+ * @param {Object} canvasObj 
+ * @param {Object} options 
+ *                    transType: 要转为的 image 格式；
+ *                    transQuality: 图片质量； 可选： 0-1；默认： 1；
+ *                    imageName: 转成图片的名字；默认： 'image-file'
+ *                    suffix: 图片格式 后缀； 默认： 'png';
+ *                    lastModified: 自定义最后修改时间；默认： Date.now()
+ * @returns {Promise} promise: resolve(imageFile)
  */
 ```
 

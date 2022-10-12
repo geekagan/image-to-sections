@@ -32,6 +32,7 @@
         allowZoom: true
       }
       const files = await getBigImageSectionFiles(imageFile, options)
+      domImageListBox.style = 'max-width: 750px; border: 1px solid pink; overflow: auto; min-height: 200px;'
       domImageListBox.innerHTML = ""
       files.forEach((file) => {
         let reader = new FileReader()
@@ -54,6 +55,7 @@
         allowZoom: false
       }
       const files = await getBigImageSectionFiles(imageFile, options)
+      domImageListBox.style = 'min-width: 750px; border: 1px solid pink; overflow-x: auto; min-height: 200px;'
       domImageListBox.innerHTML = ""
       files.forEach((file) => {
         let reader = new FileReader()
