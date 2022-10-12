@@ -11,7 +11,7 @@
  * @return [File, ...] fileList
  */
  export async function getBigImageSectionFiles (imgFile, options={}) {
-  console.log('getBigImageSectionFiles imgFile ==> ', imgFile)
+  // console.log('getBigImageSectionFiles imgFile ==> ', imgFile)
   // 参数 & 默认值
   options = { 
     sectionWidth: options.sectionWidth || 750, 
@@ -19,7 +19,6 @@
     cutDirection: options.cutDirection || 'horizontal', 
     allowZoom: options.allowZoom || false
   }
-  console.log('options 1 --------> ', options)
   // 把 imageFile 转为 image 实例
   const source = URL.createObjectURL(imgFile) // 参考： https://developer.mozilla.org/zh-CN/docs/Web/API/URL/createObjectURL
   const newImg = new Image()
@@ -29,12 +28,11 @@
   let loadedImg = await imageLoaded(newImg)
   // zoom image 实例
   loadedImg = zoomImageForSection(loadedImg, options)
-  console.log(loadedImg.width, loadedImg.height)
   // 实例已经加载完成，不再需要 source, 释放之前已经存在的、通过调用 URL.createObjectURL() 创建的 URL 对象;
   URL.revokeObjectURL(source); 
   // 获取 与 options.cutDirection 相对应的 canvas 切片
   const canvasSections = getImageCanvasSections(loadedImg, { sectionWidth: options.sectionWidth, sectionHeight: options.sectionHeight, cutDirection: options.cutDirection })
-  console.log('getBigImageSectionFiles canvasSections  ==> ', canvasSections)
+  // console.log('getBigImageSectionFiles canvasSections  ==> ', canvasSections)
   // TEST：append to document.body
   // canvasSections.forEach(itemCanvas => document.body.append(itemCanvas)) 
   // 获取 canvas 切片转 Blob 数组
@@ -62,7 +60,6 @@ export function zoomImageForSection (loadedImg, options={}) {
     cutDirection: options.cutDirection || 'horizontal', 
     allowZoom: options.allowZoom || false
   }
-  console.log('options ---> ', options)
   if (!options.allowZoom) return loadedImg
   switch (options.cutDirection) {
     case 'horizontal':
@@ -73,7 +70,6 @@ export function zoomImageForSection (loadedImg, options={}) {
       loadedImg.height = options.sectionHeight
       loadedImg.width = Math.round(loadedImg.naturalWidth * loadedImg.height / loadedImg.naturalWidth)
   } 
-  console.log('---> ', loadedImg.width, loadedImg.height)
   return loadedImg
 }
 
@@ -202,6 +198,10 @@ const imageLoaded = async (newImg) => new Promise((resolve) => newImg.onload = (
 /**
  * @description 图片 img 转为 canvas，并获取其 canvas dom 对象
  * @param {Image } loadedImg 
+ * @param {Object} options
+ *                   canvWidth: canvas 的宽度； 默认： 0；
+ *                   canvHeight: canvas 的高度； 默认： 0；
+ *                   distorted: 是否允许失真；默认： false；
  * @return {Canvas} canvas
  */
 export function imageToCanvas (loadedImg, options={}) {
@@ -267,8 +267,12 @@ export async function imageFileToThumbFile (imgFile, options={}) {
   // loaded image 转换为 canvas
   const thumbCanvas = imageToCanvas(loadedImg, { canvWidth: options.thumbWidth, canvHeight: options.thumbHeight, distorted: false })
   // thumb canvas 转换为 image file
-  const thumbBlob = await canvasToBlob(thumbCanvas) // thumbCanvas transform to thumbBlob
-  thumbFile = new File([thumbBlob], `thumb-image.png`, {type: thumbBlob.type, lastModified: Date.now()})
+  // const thumbBlob = await canvasToBlob(thumbCanvas) // thumbCanvas transform to thumbBlob
+  // thumbFile = new File([thumbBlob], `thumb-image.png`, {type: thumbBlob.type, lastModified: Date.now()})
+
+  thumbFile = await canvasToImageFile(thumbCanvas, { imageName: 'thumb-image', transType: 'image/png' })
+
+
   return thumbFile
 }
 
@@ -291,6 +295,24 @@ export function canvasToBlob (canvasObj, transType, transQuality) {
   return promise
 }
 
+// TODO: 验证与使用
+export async function canvasToImageFile (canvasObj, options={}) {
+  options = {
+    transType: options.transType || 'image/png',
+    transQuality: options.transQuality || 1,
+    imageName: options.imageName || 'image-file',
+    suffix: options.transType ? options.transType.split('/')[1] : 'png',
+    lastModified: Date.now()
+  }
+  const promise = new Promise((resolve) => {
+    canvasObj.toBlob(blob =>  {
+      const imageFile = new File([blob], `${options.imageName}.${options.suffix}`, {type: options.transType, lastModified: Date.now()})
+      blob ? resolve(imageFile) : reject(new Error('canvasToBlob error'))
+    }, options.transType, options.transQuality)
+  })
+  return promise
+}
+
 // export default
 export default {
   getBigImageSectionFiles,
@@ -299,5 +321,6 @@ export default {
   getImageCanvasSections,
   getImageCanvasSectionsH,
   getImageCanvasSectionsV,
-  canvasToBlob
+  canvasToBlob, // TODO: 不做对外暴露功能使用，可做为工具函数
+  canvasToImageFile // TODO:
 }

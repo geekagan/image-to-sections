@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>图片 img 转为 canvas dom 对象</title>
+</head>
+<body>
+  <h3>获取 canvas dom：options: { canvWidth: 100, canvHeight: 100, distorted: false }</h3>
+  <input id="fileInput" type="file" />
+
+  <h3>展示 canvas：</h3>
+  <div id="imageBox" style="min-width: 750px; border: 1px solid pink; overflow-x: auto; min-height: 200px;"></div>
+  
+  <script type="module">
+    import { imageToCanvas } from './../src/index.js'
+    /** image loaded, return Promise; */ 
+    const imageLoaded = async (newImg) => new Promise((resolve) => newImg.onload = () => resolve(newImg))
+    
+    // canvas
+    document.querySelector('#fileInput').onchange = async function(e){
+      
+      const domImageBox = document.querySelector('#imageBox')
+      const imageFile = e.target.files[0]
+      const options = {
+        canvWidth: 100,
+        canvHeight: 100,
+        distorted: false
+      }
+      // 把 imgFile 转为 image 实例
+      const source = URL.createObjectURL(imageFile)
+      const newImg = new Image()
+      newImg.crossOrigin = "Anonymous"
+      newImg.src = source
+      const loadedImage = await imageLoaded(newImg)
+      const canvas = await imageToCanvas(loadedImage, options)
+      domImageBox.innerHTML = ""
+      domImageBox.append(canvas)
+    }
+  </script>
+  
+</body>
+</html>

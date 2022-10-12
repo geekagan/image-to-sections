@@ -83,7 +83,12 @@
 /**
  * @description 图片 img 转为 canvas，并获取其 canvas dom 对象
  *
- * @param {Image} loadedImage: 已加载的 image 对象
+ * @param {Image } loadedImage 
+ *
+ * @param {Object} options
+ *                   canvWidth: canvas 的宽度； 默认： 0；
+ *                   canvHeight: canvas 的高度； 默认： 0；
+ *                   distorted: 是否允许失真；默认： false；
  *
  * @return {Canvas} canvas
  */

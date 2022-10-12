@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>获取 大图片 切片后的 files</title>
+</head>
+<body>
+
+  <h3>横切：options: { sectionWidth: 100, sectionHeight: 400, allowZoom: true }</h3>
+  <input id="fileInputH" type="file" />
+
+  <h3>纵切：options: { sectionWidth: 100, sectionHeight: 400, cutDirection: 'vertical', allowZoom: false }</h3>
+  <input id="fileInputV" type="file" />
+
+
+  <h3>展示image 列表：</h3>
+  <div id="imageBox" style="min-width: 750px; border: 1px solid pink; overflow-x: auto; min-height: 200px;"></div>
+  
+
+  <script type="module">
+    import { getBigImageSectionFiles } from './../src/index.js'
+    // 横切
+    document.querySelector('#fileInputH').onchange = async function(e){
+      const domImageListBox = document.querySelector('#imageBox')
+      const imageFile = e.target.files[0]
+      const options = {
+        sectionWidth: 750,
+        sectionHeight: 100,
+        cutDirection: 'horizontal',
+        allowZoom: true
+      }
+      const files = await getBigImageSectionFiles(imageFile, options)
+      domImageListBox.innerHTML = ""
+      files.forEach((file) => {
+        let reader = new FileReader()
+        let img = new Image()
+        reader.readAsDataURL(file)
+        reader.onload = (e) => {
+          img.src = e.target.result
+          domImageListBox.append(img)
+        }
+      })
+    }
+    // 纵切
+    document.querySelector('#fileInputV').onchange = async function(e){
+      const domImageListBox = document.querySelector('#imageBox')
+      const imageFile = e.target.files[0]
+      const options = {
+        sectionWidth: 100,
+        sectionHeight: 400,
+        cutDirection: 'vertical',
+        allowZoom: false
+      }
+      const files = await getBigImageSectionFiles(imageFile, options)
+      domImageListBox.innerHTML = ""
+      files.forEach((file) => {
+        let reader = new FileReader()
+        let img = new Image()
+        img.style = 'margin-left: 5px;'
+        reader.readAsDataURL(file)
+        reader.onload = (e) => {
+          img.src = e.target.result
+          domImageListBox.append(img)
+        }
+      })
+    }
+
+  </script>
+  
+</body>
+</html>

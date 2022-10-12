@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>获取 缩略图片 file</title>
+</head>
+<body>
+
+  <h3>获取缩略图：options: { thumbWidth: 100, thumbHeight: 100 }</h3>
+  <input id="fileInput" type="file" />
+
+  <h3>展示 thumb image：</h3>
+  <div id="imageBox" style="min-width: 750px; border: 1px solid pink; overflow-x: auto; min-height: 200px;"></div>
+  
+
+  <script type="module">
+    import { imageFileToThumbFile } from './../src/index.js'
+    // 缩略图
+    document.querySelector('#fileInput').onchange = async function(e){
+      const domImageBox = document.querySelector('#imageBox')
+      const imageFile = e.target.files[0]
+      const options = {
+        thumbWidth: 100,
+        thumbHeight: 100
+      }
+      const file = await imageFileToThumbFile(imageFile, options)
+      const reader = new FileReader()
+      const img = new Image()
+      domImageBox.innerHTML = ""
+      reader.readAsDataURL(file)
+      reader.onload = (e) => {
+        img.src = e.target.result
+        domImageBox.append(img)
+      }
+    }
+
+  </script>
+  
+</body>
+</html>
