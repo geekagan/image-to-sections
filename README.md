@@ -1,16 +1,17 @@
 # Package: image-to-sections
 
 ## Description:
+
 > 主要功能：
 >
-> 1. 将 大图片做成切片; 提供 横切 和 竖切 两种切片方式;    --> getBigImageSectionFiles()
+> 1. 将 大图片做成切片; 提供 横切 和 竖切 两种切片方式; --> getBigImageSectionFiles()
 >
 > 其它功能：
-> 
+>  
 > 1. 获取图片的缩略图；                 --> imageFileToThumbFile()
-> 
+>  
 > 2. 获取图片的 canvas dom 对象；       --> imageToCanvas()
-> 
+>  
 > 3. 获取图片的 canvas 切片数组；       --> getImageCanvasSections()
 >
 > 4. 获取图片的 canvas 横向切片数组；   --> getImageCanvasSectionsH()
@@ -19,9 +20,10 @@
 >
 > 6. canvas 对象转为 blob 二进制数据；  --> canvasToBlob()
 >
-> 7. canvas 对象转为 image file;      --> canvasToImageFile()
+> 7. canvas 对象转为 image file; --> canvasToImageFile()
 
 ## Usage:
+
 > 安装：
 >
 > *npm install image-to-sections --save*
@@ -34,9 +36,10 @@
 >
 > *export { getBigImageSectionFiles } from 'image-to-sections'*
 
-
 ## Methods Introduction:
->- getBigImageSectionFiles(imageFile, options={})
+
+> - getBigImageSectionFiles(imageFile, options={})
+
 ```
 /**
  * @description: 获取大图片File, 的切片后的 Files: [file, file, ...]
@@ -60,7 +63,8 @@
  */
 ```
 
->- imageFileToThumbFile(imageFile, options={})
+> - imageFileToThumbFile(imageFile, options={})
+
 ```
 /**
  * @desction 获取 image file 的缩略图的 file 文件
@@ -80,7 +84,8 @@
  */
 ```
 
->- imageToCanvas(loadedImage, options={})
+> - imageToCanvas(loadedImage, options={})
+
 ```
 /**
  * @description 图片 img 转为 canvas，并获取其 canvas dom 对象
@@ -96,7 +101,8 @@
  */
 ```
 
->- getImageCanvasSections(loadedImage, options={})
+> - getImageCanvasSections(loadedImage, options={})
+
 ```
 /**
  * @description 获取图片 loadedImage 的 canvas 切片数组
@@ -117,7 +123,8 @@
  */
 ```
 
->- getImageCanvasSectionsH(loadedImage, canvasHeight)
+> - getImageCanvasSectionsH(loadedImage, canvasHeight)
+
 ```
 /**
  * @description 获取图片 img 的 横切后的 canvas 切片数组
@@ -130,7 +137,8 @@
  */
 ```
 
->- getImageCanvasSectionsV(loadedImage, canvasWidth)
+> - getImageCanvasSectionsV(loadedImage, canvasWidth)
+
 ```
 /**
  * @description 获取图片 img 的 纵切后的 canvas 切片数组
@@ -143,7 +151,8 @@
  */
 ```
 
->- canvasToBlob (canvasObj, transType, transQuality)
+> - canvasToBlob (canvasObj, transType, transQuality)
+
 ```
 /**
  * @decription: canvas 转成 blob 二进制
@@ -160,7 +169,8 @@
  */
 ```
 
->- canvasToImageFile(canvasObj, options={})
+> - canvasToImageFile(canvasObj, options={})
+
 ```
 /**
  * @description: 将 canvas 对象转为 imageFile
@@ -174,4 +184,3 @@
  * @returns {Promise} promise: resolve(imageFile)
  */
 ```
-
