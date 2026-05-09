@@ -1,5 +1,7 @@
 # image\-to\-sections 🖼️
 
+> 📖 **[English Version](README.en.md)** | 🌟 **轻量级前端图片处理库**
+
 一个轻量、高效、易用的前端图片处理工具库，专注于图片切片、缩略图生成、Canvas 转换及文件导出，零多余依赖，适配所有现代浏览器，支持 npm 直接引入使用。
 
 ## 📋 目录
@@ -34,9 +36,13 @@
 
 核心能力：大图片切片（横切/竖切）、缩略图生成、Canvas 格式转换
 
-（可自行添加项目截图，替换下方占位提示）
+示例：原始图 | 横切预览 | 竖切预览
 
-示例：左→原图 / 右→切片后效果（横切，切片高度200px）
+<div style="display: flex; justify-content: space-around; ">
+  <img src="material/origin-image.png" alt="原始图" style="width: 30%; ">
+  <img src="material/h-sliced-image.png" alt="横切预览" style="width: 30%; ">
+  <img src="material/v-sliced-image.png" alt="竖切预览" style="width: 30%; ">
+</div>
 
 ## 📦 安装
 
@@ -234,7 +240,9 @@ input.addEventListener('change', async (e) => {
     console.log('切片完成，共', sectionFiles.length, '个切片');
     sectionFiles.forEach((file, index) => {
         console.log(`切片 ${index + 1}`, file);
-        // 上传示例：const formData = new FormData(); formData.append(`section${index}`, file);
+        // 上传示例：
+        // const formData = new FormData(); 
+        // formData.append(`section${index}`, file);
     });
 });
 ```
