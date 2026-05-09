@@ -1,23 +1,40 @@
 {
   "name": "image-to-sections",
   "version": "0.1.3",
-  "description": "big image to image sections",
+  "description": "Split large browser images into canvas sections and export them as files.",
+  "type": "module",
   "main": "index.js",
+  "exports": {
+    ".": {
+      "import": "./index.js",
+      "default": "./index.js"
+    }
+  },
+  "files": [
+    "index.js",
+    "src/",
+    "README.md"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Geek-JCY/image-to-sections.git"
+    "url": "git+https://github.com/geekagan/image-to-sections.git"
   },
+  "bugs": {
+    "url": "https://github.com/geekagan/image-to-sections/issues"
+  },
+  "homepage": "https://github.com/geekagan/image-to-sections#readme",
   "dependencies": {},
   "keywords": [
     "image",
-    "sections",
     "canvas",
-    "image",
-    "files"
+    "image-sections",
+    "image-split",
+    "image-slicer",
+    "browser"
   ],
-  "author": "jcy",
-  "license": "ISC"
+  "author": "geekagan",
+  "license": "MIT"
 }
