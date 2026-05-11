@@ -1,6 +1,6 @@
 {
   "name": "image-to-sections",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Split large browser images into canvas sections and export them as files.",
   "type": "module",
   "main": "index.js",
