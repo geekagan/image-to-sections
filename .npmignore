@@ -1,0 +1,23 @@
+# 依赖
+node_modules
+package-lock.json
+yarn.lock
+
+# 测试/开发
+test
+tests
+__tests__
+coverage
+
+# 构建产物（如果不需要发布源码则加上）
+# dist
+
+# 自定义
+demo
+material
+
+# 其他
+.git
+.gitignore
+.vscode
+.DS_Store
