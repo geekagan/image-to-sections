@@ -1,6 +1,6 @@
 # image\-to\-sections 🖼️
 
-> 📖 **[English Version](README.en.md)** | 🌟 **轻量级前端图片处理库**
+> 📖 **[English Version](README.en.md)** | 🌟 **轻量级前端图片处理库** 11
 
 一个轻量、高效、易用的前端图片处理工具库，专注于图片切片、缩略图生成、Canvas 转换及文件导出，零多余依赖，适配所有现代浏览器，支持 npm 直接引入使用。
 
