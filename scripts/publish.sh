@@ -20,14 +20,32 @@ log_success() { echo "✅ $1"; }
 log_warn() { echo "⚠️  $1"; }
 log_error() { echo "❌ $1"; }
 
-# 执行带超时的命令
+# 执行带超时的命令（macOS 兼容）
 run_with_timeout() {
   local timeout=$1
   shift
-  timeout "$timeout" "$@" || {
-    log_error "命令超时（${timeout}s）: $*"
-    exit 1
-  }
+  
+  # 检测系统类型
+  if command -v timeout >/dev/null 2>&1; then
+    # Linux 系统
+    timeout "$timeout" "$@" || {
+      log_error "命令超时（${timeout}s）: $*"
+      exit 1
+    }
+  elif command -v gtimeout >/dev/null 2>&1; then
+    # macOS with GNU coreutils
+    gtimeout "$timeout" "$@" || {
+      log_error "命令超时（${timeout}s）: $*"
+      exit 1
+    }
+  else
+    # macOS fallback（使用 perl 实现超时）
+    log_warn "系统不支持 timeout 命令，使用无超时模式（可能卡住）"
+    "$@" || {
+      log_error "命令执行失败: $*"
+      exit 1
+    }
+  fi
 }
 
 echo "==================== NPM 一键发版脚本 ===================="
