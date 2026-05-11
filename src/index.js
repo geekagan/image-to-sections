@@ -11,12 +11,13 @@
  * @description: 获取大图片File, 的切片后的 Files: [file, file, ...]
  * @param {Image} imgFile
  * @param {Object} options
- *                    sectionWidth: 切片宽度; 默认： 750
- *                    sectionHeight: 切片高度； 默认： 100
- *                    cutDirection: 描述：图片的切向； 可选： 'horizontal'<横切> | 'vertical'<纵切>; 默认： 'horizontal';
- *                    allowZoom: 是否允许缩放；可选：true | false; 默认： false
- * @introduction 1. 当 cutDirection==='horizontal' 时，sectionHeight 起作用，sectionWidth 不起作用
- *              2. 当 cutDirection==='vertical' 时，sectionHeight 不起作用，sectionWidth 起作用
+ * 						sectionWidth: 切片宽度; 默认： 750
+ * 						sectionHeight: 切片高度； 默认： 100
+ * 						cutDirection: 描述：图片的切向； 可选： 'horizontal'<横切> | 'vertical'<纵切>; 默认： 'horizontal';
+ * 						allowZoom: 是否允许缩放；可选：true | false; 默认： false
+ * @introduction
+ * 		1. 当 cutDirection==='horizontal' 时，sectionHeight 起作用，sectionWidth 不起作用
+ * 		2. 当 cutDirection==='vertical' 时，sectionHeight 不起作用，sectionWidth 起作用
  * @return [File, ...] fileList
  */
 export async function getBigImageSectionFiles(imgFile, options = {}) {
