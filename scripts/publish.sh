@@ -239,12 +239,47 @@ echo "11. 开始发布到 npm..."
 if [ "$DRY_RUN" = true ]; then
   log_warn "【模拟模式】跳过真实发布"
 else
-  if run_with_timeout "$TIMEOUT" npm publish; then
-    log_success "NPM 发布成功"
-  else
-    log_error "NPM 发布失败"
-    exit 1
+  # 尝试发布，如果失败则检查是否需要认证
+  if ! npm publish 2>&1; then
+    # 捕获 npm publish 的输出
+    publish_output=$(npm publish 2>&1)
+    echo "$publish_output"
+    
+    # 检查输出是否包含认证 URL
+    if echo "$publish_output" | grep -q "https://www.npmjs.com/auth/cli/"; then
+      auth_url=$(echo "$publish_output" | grep "https://www.npmjs.com/auth/cli/" | head -1 | awk '{print $NF}')
+      log_warn "检测到需要 npm 认证，正在打开浏览器..."
+      
+      # 根据系统打开浏览器
+      if command -v open >/dev/null 2>&1; then
+        # macOS
+        open "$auth_url"
+      elif command -v xdg-open >/dev/null 2>&1; then
+        # Linux
+        xdg-open "$auth_url"
+      elif command -v start >/dev/null 2>&1; then
+        # Windows
+        start "$auth_url"
+      else
+        log_error "无法自动打开浏览器，请手动访问: $auth_url"
+      fi
+      
+      echo ""
+      read -p "请在浏览器中完成认证后，按 Enter 继续..."
+      log_info "继续发布..."
+      
+      # 重新尝试发布
+      npm publish || {
+        log_error "NPM 发布失败"
+        exit 1
+      }
+    else
+      log_error "NPM 发布失败"
+      exit 1
+    fi
   fi
+  
+  log_success "NPM 发布成功"
 fi
 
 echo ""
