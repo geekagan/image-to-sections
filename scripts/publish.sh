@@ -120,9 +120,21 @@ echo ""
 
 # 8. Git 提交 + Tag
 echo "8. 创建 Git 提交和 tag..."
-git add package.json
-git commit -m "chore(release): v${newVersion}"
-git tag "v${newVersion}"
+
+# 检查 package.json 是否有变化
+if git diff --quiet package.json; then
+  echo "⚠️  package.json 无变化，跳过 git 提交"
+else
+  git add package.json
+  git commit -m "chore(release): v${newVersion}"
+fi
+
+# 检查 tag 是否已存在
+if git rev-parse "v${newVersion}" >/dev/null 2>&1; then
+  echo "⚠️  标签 v${newVersion} 已存在，跳过创建"
+else
+  git tag "v${newVersion}"
+fi
 
 echo "9. 开始正式发布到 npm..."
 npm publish
