@@ -7,3 +7,17 @@ node_modules/
 !.vscode/extensions.json
 .idea
 .DS_Store
+
+# Others
+.claude/
+CLAUDE.md
+AGENTS.md
+GEMINI.md
+.cursor/
+.windsurf/
+.github/
+.kiro/
+.trae/
+.clinerules/
+.roo/
+.continue/
