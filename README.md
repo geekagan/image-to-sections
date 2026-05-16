@@ -39,9 +39,9 @@
 示例：原始图 | 横切预览 | 竖切预览
 
 <div style="display: flex; justify-content: space-around; ">
-  <img src="material/origin-image.png" alt="原始图" style="width: 30%; ">
-  <img src="material/h-sliced-image.png" alt="横切预览" style="width: 30%; ">
-  <img src="material/v-sliced-image.png" alt="竖切预览" style="width: 30%; ">
+  <img src="assets/origin-image.png" alt="原始图" style="width: 30%; ">
+  <img src="assets/h-sliced-image.png" alt="横切预览" style="width: 30%; ">
+  <img src="assets/v-sliced-image.png" alt="竖切预览" style="width: 30%; ">
 </div>
 
 ## 📦 安装

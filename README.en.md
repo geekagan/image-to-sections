@@ -30,9 +30,9 @@ Core Capabilities: Large image slicing (horizontal/vertical), thumbnail generati
 Example: Original Image | Horizontal Slice Preview | Vertical Slice Preview
 
 <div style="display: flex; justify-content: space-around; ">
-  <img src="material/origin-image.png" alt="Original Image" style="width: 30%; ">
-  <img src="material/h-sliced-image.png" alt="Horizontal Slice Preview" style="width: 30%; ">
-  <img src="material/v-sliced-image.png" alt="Vertical Slice Preview" style="width: 30%; ">
+  <img src="assets/origin-image.png" alt="Original Image" style="width: 30%; ">
+  <img src="assets/h-sliced-image.png" alt="Horizontal Slice Preview" style="width: 30%; ">
+  <img src="assets/v-sliced-image.png" alt="Vertical Slice Preview" style="width: 30%; ">
 </div>
 
 ## 📦 Installation

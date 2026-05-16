@@ -14,7 +14,8 @@
     "index.js",
     "src/",
     "README.md",
-    "README.en.md"
+    "README.en.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
