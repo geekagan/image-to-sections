@@ -91,8 +91,9 @@ export function zoomImageForSection(loadedImg, options = {}) {
 		case "vertical":
 			loadedImg.height = options.sectionHeight;
 			loadedImg.width = Math.round(
-				(loadedImg.naturalWidth * loadedImg.height) / loadedImg.naturalWidth,
+				(loadedImg.naturalWidth * loadedImg.height) / loadedImg.naturalHeight,
 			);
+			break;
 	}
 	return loadedImg;
 }

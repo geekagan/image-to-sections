@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>test: zoomImageForSection</title>
+  <style>
+    body { font-family: monospace; padding: 16px; max-width: 900px; }
+    .case { border: 1px solid #ddd; border-radius: 4px; padding: 12px; margin-bottom: 16px; }
+    h3 { margin: 0 0 8px; font-size: 14px; }
+    .log { background: #f5f5f5; padding: 8px; font-size: 12px; margin-top: 8px; white-space: pre-wrap; min-height: 32px; border-radius: 2px; }
+    .pass { color: #2a2; } .fail { color: #c22; }
+  </style>
+</head>
+<body>
+  <h2>test: zoomImageForSection</h2>
+  <p style="font-size:12px;color:#666;">注：此函数直接修改 Image 对象的 width / height 属性（不改变 naturalWidth / naturalHeight）。</p>
+
+  <div class="case">
+    <h3>Case 1 — allowZoom=false（返回原始图片，尺寸不变）</h3>
+    <input id="input1" type="file" accept="image/*">
+    <div class="log" id="log1">选择图片后显示结果…</div>
+  </div>
+
+  <div class="case">
+    <h3>Case 2 — horizontal, allowZoom=true, sectionWidth=400（img.width 应变为 400，height 等比缩放）</h3>
+    <input id="input2" type="file" accept="image/*">
+    <div class="log" id="log2">选择图片后显示结果…</div>
+  </div>
+
+  <div class="case">
+    <h3>Case 3 — vertical, allowZoom=true, sectionHeight=300（img.height 应变为 300）</h3>
+    <input id="input3" type="file" accept="image/*">
+    <div class="log" id="log3">选择图片后显示结果…</div>
+  </div>
+
+  <script type="module">
+    import { zoomImageForSection } from '../src/index.js'
+
+    const imageLoaded = img => new Promise(r => (img.onload = () => r(img)))
+
+    function ok(label, pass, detail = '') {
+      return `<span class="${pass ? 'pass' : 'fail'}">[${pass ? 'PASS' : 'FAIL'}] ${label}</span>${detail ? ' → ' + detail : ''}\n`
+    }
+
+    async function loadFreshImg(file) {
+      const img = new Image()
+      img.crossOrigin = 'Anonymous'
+      img.src = URL.createObjectURL(file)
+      return imageLoaded(img)
+    }
+
+    document.querySelector('#input1').onchange = async (e) => {
+      const img = await loadFreshImg(e.target.files[0])
+      const origW = img.naturalWidth, origH = img.naturalHeight
+      const result = zoomImageForSection(img, { allowZoom: false })
+
+      let log = `naturalWidth: ${img.naturalWidth}  naturalHeight: ${img.naturalHeight}\n`
+      log += ok('返回同一个 Image 对象', result === img)
+      log += ok('img.width 未变', img.width === origW, `${img.width} === ${origW}`)
+      log += ok('img.height 未变', img.height === origH, `${img.height} === ${origH}`)
+      document.querySelector('#log1').innerHTML = log
+    }
+
+    document.querySelector('#input2').onchange = async (e) => {
+      const img = await loadFreshImg(e.target.files[0])
+      const nw = img.naturalWidth, nh = img.naturalHeight
+      const options = { sectionWidth: 400, sectionHeight: 100, cutDirection: 'horizontal', allowZoom: true }
+      zoomImageForSection(img, options)
+
+      const expectedH = Math.round(nh * options.sectionWidth / nw)
+      let log = `naturalWidth: ${nw}  naturalHeight: ${nh}\n`
+      log += `缩放后 img.width: ${img.width}  img.height: ${img.height}\n`
+      log += ok('img.width = sectionWidth', img.width === options.sectionWidth, `${img.width} === ${options.sectionWidth}`)
+      log += ok('img.height 等比缩放', img.height === expectedH, `${img.height} === ${expectedH}`)
+      log += ok('naturalWidth / naturalHeight 不变', img.naturalWidth === nw && img.naturalHeight === nh)
+      document.querySelector('#log2').innerHTML = log
+    }
+
+    document.querySelector('#input3').onchange = async (e) => {
+      const img = await loadFreshImg(e.target.files[0])
+      const nw = img.naturalWidth, nh = img.naturalHeight
+      const options = { sectionWidth: 400, sectionHeight: 300, cutDirection: 'vertical', allowZoom: true }
+      zoomImageForSection(img, options)
+
+      const expectedW = Math.round(nw * options.sectionHeight / nh)
+      let log = `naturalWidth: ${nw}  naturalHeight: ${nh}\n`
+      log += `缩放后 img.width: ${img.width}  img.height: ${img.height}\n`
+      log += ok('img.height = sectionHeight', img.height === options.sectionHeight, `${img.height} === ${options.sectionHeight}`)
+      log += ok('img.width 等比缩放', img.width === expectedW, `${img.width} === ${expectedW}`)
+      log += ok('naturalWidth / naturalHeight 不变', img.naturalWidth === nw && img.naturalHeight === nh)
+      document.querySelector('#log3').innerHTML = log
+    }
+  </script>
+</body>
+</html>

@@ -37,7 +37,9 @@ Example: Original Image | Horizontal Slice Preview | Vertical Slice Preview
 
 ## 📦 Installation
 
-Supports npm, yarn installation, on-demand import to reduce bundle size, suitable for front-end engineering projects.
+⚠️ **Note**: This library is **ESM-only** (does not support `require()`), and **runs in browser environments only** (Node.js is not supported).
+
+Supports npm, yarn, and pnpm installation. On-demand import reduces bundle size, suitable for front-end engineering projects.
 
 ```bash
 # npm (recommended)
@@ -45,6 +47,9 @@ npm install image-to-sections --save
 
 # yarn
 yarn add image-to-sections
+
+# pnpm
+pnpm add image-to-sections
 ```
 
 ## 🔧 Usage
@@ -55,6 +60,10 @@ Supports full import and on-demand import. On-demand import reduces unnecessary 
 
 ```javascript
 import imageToSection from 'image-to-sections'
+
+// Call each function via namespace
+imageToSection.getBigImageSectionFiles(imageFile, options)
+// ... other functions similarly; named imports (below) are recommended
 ```
 
 ### On-Demand Import (Recommended)
@@ -94,7 +103,7 @@ All APIs provide clear parameter descriptions and usage scenarios, no need for a
  * 1. For horizontal slicing, only sectionHeight takes effect; for vertical, only sectionWidth
  * 2. When zoom allowed, both width and height take effect, image scaled proportionally then sliced
  *
- * @return {File[]} Array of sliced Files
+ * @return {Promise<File[]>} Array of sliced Files
  */
 ```
 
@@ -111,7 +120,7 @@ All APIs provide clear parameter descriptions and usage scenarios, no need for a
  *    thumbHeight  Thumbnail height (optional)
  *
  * @introduction Automatically scales proportionally regardless of single or dual parameters to avoid distortion
- * @return {File} Thumbnail File object
+ * @return {Promise<File>} Thumbnail File object
  */
 ```
 
@@ -179,7 +188,7 @@ All APIs provide clear parameter descriptions and usage scenarios, no need for a
 /**
  * @description Convert canvas to blob binary data
  * @param {HTMLCanvasElement} canvasObj - Canvas DOM object (required)
- * @param {String} transType - Image type, default 'image/png', optional 'image/jpg'|'image/jpeg'
+ * @param {String} transType - Image type, default 'image/png', optional 'image/jpeg'
  * @param {Number} transQuality - Image quality 0~1, default 1 (highest quality)
  * @returns {Promise<Blob>} Promise returning Blob data
  */
@@ -200,6 +209,29 @@ All APIs provide clear parameter descriptions and usage scenarios, no need for a
  *    suffix         File suffix, default 'png'
  *    lastModified   Last modified time, default Date.now()
  * @returns {Promise<File>} Promise returning ImageFile object
+ */
+```
+
+### 9. zoomImageForSection(loadedImage, options)
+
+**Feature**: Proportionally scale a loaded Image object based on section dimensions. Only performs scaling when `allowZoom=true`. Called internally by `getBigImageSectionFiles`, but can also be used standalone.
+
+```javascript
+/**
+ * @description Proportionally scale an Image object based on section options
+ * @param {Image} loadedImage - Fully loaded Image object (required)
+ * @param {Object} options - Options (optional)
+ *    sectionWidth    Target slice width, default 750
+ *    sectionHeight   Target slice height, default 100
+ *    cutDirection    Slice direction: 'horizontal' | 'vertical', default 'horizontal'
+ *    allowZoom       Allow zoom, default false; when false, returns original object unchanged
+ *
+ * @introduction
+ * Horizontal: scales image width to sectionWidth, height calculated proportionally
+ * Vertical: scales image height to sectionHeight, width calculated proportionally
+ * Note: mutates loadedImage.width / loadedImage.height in-place, does not create a new object
+ *
+ * @return {Image} The mutated Image object (same object passed in)
  */
 ```
 
@@ -264,7 +296,7 @@ input.addEventListener('change', async (e) => {
 ```javascript
 // 1. Convert image to Canvas first (replace with your own image URL)
 const img = new Image();
-img.src = 'https://via.placeholder.com/500x300?text=Sample+Image'; // Stable placeholder, can use directly
+img.src = 'your-image.png'; // Replace with your actual image URL
 img.onload = async () => {
     const canvas = imageToCanvas(img);
 

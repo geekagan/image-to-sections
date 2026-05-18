@@ -46,7 +46,9 @@
 
 ## 📦 安装
 
-支持 npm、yarn 安装，按需引入可减小打包体积，适配前端工程化项目。
+⚠️ **注意**：本库为**纯 ESM 模块**（不支持 `require()`），且**仅支持浏览器环境**（不支持 Node.js）。
+
+支持 npm、yarn、pnpm 安装，按需引入可减小打包体积，适配前端工程化项目。
 
 ```bash
 # npm（推荐）
@@ -54,7 +56,9 @@ npm install image-to-sections --save
 
 # yarn
 yarn add image-to-sections
-    
+
+# pnpm
+pnpm add image-to-sections
 ```
 
 ## 🔧 使用方式
@@ -65,6 +69,10 @@ yarn add image-to-sections
 
 ```javascript
 import imageToSection from 'image-to-sections'
+
+// 通过命名空间调用各函数
+imageToSection.getBigImageSectionFiles(imageFile, options)
+// ... 其他函数同理，推荐使用下方按需引入方式
 ```
 
 ### 按需引入（推荐）
@@ -104,7 +112,7 @@ import {
  * 1. 横切时仅 sectionHeight 生效，竖切时仅 sectionWidth 生效
  * 2. 允许缩放时，宽高同时生效，图片按比例适配后切片
  *
- * @return {File[]} 切片后的 File 数组
+ * @return {Promise<File[]>} 切片后的 File 数组
  */
 ```
 
@@ -121,7 +129,7 @@ import {
  *    thumbHeight  缩略图高度（可选）
  *
  * @introduction 无论传入单参数还是双参数，均自动等比缩放，避免失真
- * @return {File} 缩略图 File 对象
+ * @return {Promise<File>} 缩略图 File 对象
  */
 ```
 
@@ -189,7 +197,7 @@ import {
 /**
  * @description canvas 转成 blob 二进制数据
  * @param {HTMLCanvasElement} canvasObj - Canvas DOM 对象（必填）
- * @param {String} transType - 图片类型，默认 'image/png'，可选 'image/jpg'|'image/jpeg'
+ * @param {String} transType - 图片类型，默认 'image/png'，可选 'image/jpeg'
  * @param {Number} transQuality - 图片品质 0~1，默认 1（最高品质）
  * @returns {Promise<Blob>} 返回 Blob 数据的 Promise
  */
@@ -210,6 +218,29 @@ import {
  *    suffix         文件后缀，默认 'png'
  *    lastModified   最后修改时间，默认 Date.now()
  * @returns {Promise<File>} 返回 ImageFile 对象的 Promise
+ */
+```
+
+### 9\. zoomImageForSection\(loadedImage, options\)
+
+**功能**：对已加载的 Image 对象按切片参数进行等比缩放，仅 `allowZoom=true` 时执行缩放。通常由 `getBigImageSectionFiles` 内部调用，也可单独使用。
+
+```javascript
+/**
+ * @description 按切片尺寸对 Image 对象进行等比缩放
+ * @param {Image} loadedImage - 已加载完成的 Image 对象（必填）
+ * @param {Object} options - 配置项（可选）
+ *    sectionWidth    目标切片宽度，默认 750
+ *    sectionHeight   目标切片高度，默认 100
+ *    cutDirection    切向：'horizontal'（横切）| 'vertical'（竖切），默认 'horizontal'
+ *    allowZoom       是否缩放，默认 false；false 时原样返回，不做任何修改
+ *
+ * @introduction
+ * 横切时：将图片宽度缩放至 sectionWidth，高度按原始比例自动计算
+ * 竖切时：将图片高度缩放至 sectionHeight，宽度按原始比例自动计算
+ * 注意：直接修改 loadedImage.width / loadedImage.height（原地修改），不创建新对象
+ *
+ * @return {Image} 修改后的 Image 对象（即传入的原对象）
  */
 ```
 
@@ -274,7 +305,7 @@ input.addEventListener('change', async (e) => {
 ```javascript
 // 1. 先将图片转为 Canvas（替换为自己的图片地址）
 const img = new Image();
-img.src = 'https://via.placeholder.com/500x300?text=Sample+Image'; // 稳定占位图，可直接使用
+img.src = 'your-image.png'; // 替换为实际图片地址
 img.onload = async () => {
     const canvas = imageToCanvas(img);
 

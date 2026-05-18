@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>test: imageToCanvas</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 16px;
+      max-width: 900px;
+    }
+
+    .case {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .log {
+      background: #f5f5f5;
+      padding: 8px;
+      font-size: 12px;
+      margin-top: 8px;
+      white-space: pre-wrap;
+      min-height: 32px;
+      border-radius: 2px;
+    }
+
+    .pass {
+      color: #2a2;
+    }
+
+    .fail {
+      color: #c22;
+    }
+
+    .canvas-box {
+      margin-top: 8px;
+      min-height: 20px;
+    }
+
+    .canvas-box canvas {
+      border: 1px solid #ccc;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>test: imageToCanvas</h2>
+
+  <div class="case">
+    <h3>Case 1 — canvWidth=300, canvHeight=300, distorted=false（不允许失真，高度应等比推算，不一定是300）</h3>
+    <input id="input1" type="file" accept="image/*">
+    <div class="log" id="log1">选择图片后显示结果…</div>
+    <div class="canvas-box" id="box1"></div>
+  </div>
+
+  <div class="case">
+    <h3>Case 2 — canvWidth=300, canvHeight=150, distorted=true（严格使用指定尺寸，允许失真）</h3>
+    <input id="input2" type="file" accept="image/*">
+    <div class="log" id="log2">选择图片后显示结果…</div>
+    <div class="canvas-box" id="box2"></div>
+  </div>
+
+  <div class="case">
+    <h3>Case 3 — 只设 canvWidth=200（高度自动等比推算）</h3>
+    <input id="input3" type="file" accept="image/*">
+    <div class="log" id="log3">选择图片后显示结果…</div>
+    <div class="canvas-box" id="box3"></div>
+  </div>
+
+  <div class="case">
+    <h3>Case 4 — 不传 options（使用图片原始尺寸）</h3>
+    <input id="input4" type="file" accept="image/*">
+    <div class="log" id="log4">选择图片后显示结果…</div>
+    <div class="canvas-box" id="box4"></div>
+  </div>
+
+  <script type="module">
+    import { imageToCanvas } from '../src/index.js'
+
+    const imageLoaded = img => new Promise(r => (img.onload = () => r(img)))
+
+    function ok(label, pass, detail = '') {
+      return `<span class="${pass ? 'pass' : 'fail'}">[${pass ? 'PASS' : 'FAIL'}] ${label}</span>${detail ? ' → ' + detail : ''}\n`
+    }
+
+    async function run(inputId, logId, boxId, options) {
+      document.querySelector(inputId).onchange = async (e) => {
+        const file = e.target.files[0]
+        const newImg = new Image()
+        newImg.crossOrigin = 'Anonymous'
+        newImg.src = URL.createObjectURL(file)
+        const loadedImg = await imageLoaded(newImg)
+
+        const canvas = imageToCanvas(loadedImg, options)
+
+        const box = document.querySelector(boxId)
+        box.innerHTML = ''; box.append(canvas)
+
+        const nw = loadedImg.naturalWidth, nh = loadedImg.naturalHeight
+        let log = `原图: ${nw}×${nh}\n`
+        log += `选项: ${JSON.stringify(options)}\n`
+        log += `canvas: ${canvas.width}×${canvas.height}\n`
+
+        const { canvWidth = 0, canvHeight = 0, distorted = false } = options || {}
+
+        if (canvWidth && canvHeight) {
+          if (distorted) {
+            log += ok('canvas.width = canvWidth', canvas.width === canvWidth, `${canvas.width} === ${canvWidth}`)
+            log += ok('canvas.height = canvHeight', canvas.height === canvHeight, `${canvas.height} === ${canvHeight}`)
+          } else {
+            const expectedH = Math.round((nh / nw) * canvWidth)
+            log += ok('canvas.width = canvWidth', canvas.width === canvWidth, `${canvas.width} === ${canvWidth}`)
+            log += ok('高度等比（忽略 canvHeight）', canvas.height === expectedH, `${canvas.height} === ${expectedH}`)
+          }
+        } else if (canvWidth && !canvHeight) {
+          const expectedH = Math.round((nh / nw) * canvWidth)
+          log += ok('canvas.width = canvWidth', canvas.width === canvWidth, `${canvas.width} === ${canvWidth}`)
+          log += ok('高度等比', canvas.height === expectedH, `${canvas.height} === ${expectedH}`)
+        } else if (!canvWidth && canvHeight) {
+          const expectedW = Math.round((nw / nh) * canvHeight)
+          log += ok('canvas.height = canvHeight', canvas.height === canvHeight, `${canvas.height} === ${canvHeight}`)
+          log += ok('宽度等比', canvas.width === expectedW, `${canvas.width} === ${expectedW}`)
+        } else {
+          log += ok('canvas.width = 原图宽', canvas.width === nw, `${canvas.width} === ${nw}`)
+          log += ok('canvas.height = 原图高', canvas.height === nh, `${canvas.height} === ${nh}`)
+        }
+
+        log += ok('返回 HTMLCanvasElement', canvas instanceof HTMLCanvasElement)
+        document.querySelector(logId).innerHTML = log
+      }
+    }
+
+    run('#input1', '#log1', '#box1', { canvWidth: 300, canvHeight: 300, distorted: false })
+    run('#input2', '#log2', '#box2', { canvWidth: 300, canvHeight: 150, distorted: true })
+    run('#input3', '#log3', '#box3', { canvWidth: 200 })
+    run('#input4', '#log4', '#box4', {})
+  </script>
+</body>
+
+</html>

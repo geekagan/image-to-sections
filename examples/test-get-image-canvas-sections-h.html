@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>test: getImageCanvasSectionsH</title>
+  <style>
+    body { font-family: monospace; padding: 16px; max-width: 900px; }
+    .case { border: 1px solid #ddd; border-radius: 4px; padding: 12px; margin-bottom: 16px; }
+    h3 { margin: 0 0 8px; font-size: 14px; }
+    .log { background: #f5f5f5; padding: 8px; font-size: 12px; margin-top: 8px; white-space: pre-wrap; min-height: 32px; border-radius: 2px; }
+    .pass { color: #2a2; } .fail { color: #c22; }
+    .canvas-box { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; min-height: 20px; max-width: 400px; overflow: auto; }
+    .canvas-box canvas { border: 1px solid #ccc; display: block; width: 100%; }
+  </style>
+</head>
+<body>
+  <h2>test: getImageCanvasSectionsH</h2>
+  <p style="font-size:12px;color:#666;">横切（水平方向）：按固定高度切割，最后一片可能更短。</p>
+
+  <div class="case">
+    <h3>Case 1 — 正常横切 sectionHeight=120（切多片）</h3>
+    <input id="input1" type="file" accept="image/*">
+    <div class="log" id="log1">选择图片后显示结果…</div>
+    <div class="canvas-box" id="box1"></div>
+  </div>
+
+  <div class="case">
+    <h3>Case 2 — sectionHeight 大于图片高度（只切一片）</h3>
+    <input id="input2" type="file" accept="image/*">
+    <div class="log" id="log2">选择图片后显示结果…</div>
+    <div class="canvas-box" id="box2"></div>
+  </div>
+
+  <div class="case">
+    <h3>Case 3 — 验证末尾余量：sectionHeight=100（最后一片高度=图片高 % 100，若能整除则无余量）</h3>
+    <input id="input3" type="file" accept="image/*">
+    <div class="log" id="log3">选择图片后显示结果…</div>
+    <div class="canvas-box" id="box3"></div>
+  </div>
+
+  <script type="module">
+    import { getImageCanvasSectionsH } from '../src/index.js'
+
+    const imageLoaded = img => new Promise(r => (img.onload = () => r(img)))
+
+    function ok(label, pass, detail = '') {
+      return `<span class="${pass ? 'pass' : 'fail'}">[${pass ? 'PASS' : 'FAIL'}] ${label}</span>${detail ? ' → ' + detail : ''}\n`
+    }
+
+    async function run(inputId, logId, boxId, cHeight) {
+      document.querySelector(inputId).onchange = async (e) => {
+        const img = new Image(); img.crossOrigin = 'Anonymous'
+        img.src = URL.createObjectURL(e.target.files[0])
+        await imageLoaded(img)
+
+        const canvases = getImageCanvasSectionsH(img, cHeight)
+        const expectedCount = Math.ceil(img.height / cHeight)
+        const remainH = img.height % cHeight
+
+        const box = document.querySelector(boxId)
+        box.innerHTML = ''
+        canvases.forEach(c => box.append(c))
+
+        let log = `图片: ${img.width}×${img.height}  cHeight=${cHeight}\n`
+        log += `期望切片数: ${expectedCount}  实际: ${canvases.length}\n`
+        log += ok('切片数正确', canvases.length === expectedCount, `${canvases.length} === ${expectedCount}`)
+        log += ok('全部返回 HTMLCanvasElement', canvases.every(c => c instanceof HTMLCanvasElement))
+        log += ok('所有切片宽度等于图片宽度', canvases.every(c => c.width === img.width))
+
+        if (canvases.length > 1) {
+          const allButLast = canvases.slice(0, -1)
+          log += ok('中间片高度均等于 cHeight', allButLast.every(c => c.height === cHeight))
+          if (remainH !== 0) {
+            const last = canvases[canvases.length - 1]
+            log += ok(`末尾片高度 = 余量 ${remainH}`, last.height === remainH, `${last.height} === ${remainH}`)
+          } else {
+            log += `末尾片高度: ${canvases[canvases.length - 1].height}（整除无余量，末尾片高度 = cHeight）\n`
+          }
+        } else {
+          log += ok('单片高度 ≤ cHeight', canvases[0].height <= cHeight)
+        }
+
+        document.querySelector(logId).innerHTML = log
+      }
+    }
+
+    run('#input1', '#log1', '#box1', 120)
+    run('#input2', '#log2', '#box2', 9999)
+    run('#input3', '#log3', '#box3', 100)
+  </script>
+</body>
+</html>

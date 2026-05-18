@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>test: canvasToBlob</title>
+  <style>
+    body { font-family: monospace; padding: 16px; max-width: 900px; }
+    .case { border: 1px solid #ddd; border-radius: 4px; padding: 12px; margin-bottom: 16px; }
+    h3 { margin: 0 0 8px; font-size: 14px; }
+    .log { background: #f5f5f5; padding: 8px; font-size: 12px; margin-top: 8px; white-space: pre-wrap; min-height: 32px; border-radius: 2px; }
+    .pass { color: #2a2; } .fail { color: #c22; }
+    .preview { margin-top: 8px; }
+    .preview img { border: 1px solid #ccc; display: block; }
+  </style>
+</head>
+<body>
+  <h2>test: canvasToBlob</h2>
+  <p style="font-size:12px;color:#666;">无需文件输入，使用程序生成的 canvas（200×100 渐变色块）自动运行。</p>
+
+  <div class="case">
+    <h3>Case 1 — 默认参数（type=image/png, quality=1）</h3>
+    <div class="log" id="log1">运行中…</div>
+    <div class="preview" id="box1"></div>
+  </div>
+
+  <div class="case">
+    <h3>Case 2 — type='image/jpeg', quality=0.5</h3>
+    <div class="log" id="log2">运行中…</div>
+    <div class="preview" id="box2"></div>
+  </div>
+
+  <div class="case">
+    <h3>Case 3 — type='image/webp', quality=0.8</h3>
+    <div class="log" id="log3">运行中…</div>
+    <div class="preview" id="box3"></div>
+  </div>
+
+  <script type="module">
+    import { canvasToBlob } from '../src/index.js'
+
+    function ok(label, pass, detail = '') {
+      return `<span class="${pass ? 'pass' : 'fail'}">[${pass ? 'PASS' : 'FAIL'}] ${label}</span>${detail ? ' → ' + detail : ''}\n`
+    }
+
+    function makeCanvas(w = 200, h = 100) {
+      const canvas = document.createElement('canvas')
+      canvas.width = w; canvas.height = h
+      const ctx = canvas.getContext('2d')
+      const grad = ctx.createLinearGradient(0, 0, w, h)
+      grad.addColorStop(0, '#4f8ef7')
+      grad.addColorStop(0.5, '#e96caa')
+      grad.addColorStop(1, '#f7c94f')
+      ctx.fillStyle = grad
+      ctx.fillRect(0, 0, w, h)
+      ctx.fillStyle = '#fff'
+      ctx.font = '14px monospace'
+      ctx.fillText(`${w}×${h}`, 8, 20)
+      return canvas
+    }
+
+    async function run(logId, boxId, transType, transQuality) {
+      const canvas = makeCanvas(200, 100)
+      const blob = await canvasToBlob(canvas, transType, transQuality)
+
+      const img = new Image()
+      img.src = URL.createObjectURL(blob)
+      document.querySelector(boxId).innerHTML = ''; document.querySelector(boxId).append(img)
+
+      const expectedType = transType || 'image/png'
+      let log = `参数: transType=${transType ?? '(default)'}, transQuality=${transQuality ?? '(default)'}\n`
+      log += ok('返回 Blob 实例', blob instanceof Blob)
+      log += ok(`blob.type = ${expectedType}`, blob.type === expectedType, `"${blob.type}"`)
+      log += ok('blob.size > 0', blob.size > 0, `${blob.size} bytes`)
+      document.querySelector(logId).innerHTML = log
+    }
+
+    run('#log1', '#box1', undefined, undefined)
+    run('#log2', '#box2', 'image/jpeg', 0.5)
+    run('#log3', '#box3', 'image/webp', 0.8)
+  </script>
+</body>
+</html>

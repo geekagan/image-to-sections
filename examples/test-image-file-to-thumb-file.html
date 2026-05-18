@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>test: imageFileToThumbFile</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 16px;
+      max-width: 900px;
+    }
+
+    .case {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .log {
+      background: #f5f5f5;
+      padding: 8px;
+      font-size: 12px;
+      margin-top: 8px;
+      white-space: pre-wrap;
+      min-height: 32px;
+      border-radius: 2px;
+    }
+
+    .pass {
+      color: #2a2;
+    }
+
+    .fail {
+      color: #c22;
+    }
+
+    .thumb-box {
+      margin-top: 8px;
+      min-height: 20px;
+    }
+
+    .thumb-box img {
+      border: 1px solid #ccc;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>test: imageFileToThumbFile</h2>
+
+  <div class="case">
+    <h3>Case 1 — thumbWidth=200, thumbHeight=200（以 thumbWidth 为基准等比缩放）</h3>
+    <input id="input1" type="file" accept="image/*">
+    <div class="log" id="log1">选择图片后显示结果…</div>
+    <div class="thumb-box" id="box1"></div>
+  </div>
+
+  <div class="case">
+    <h3>Case 2 — thumbWidth=200（只设 width，height 等比推算）</h3>
+    <input id="input2" type="file" accept="image/*">
+    <div class="log" id="log2">选择图片后显示结果…</div>
+    <div class="thumb-box" id="box2"></div>
+  </div>
+
+  <div class="case">
+    <h3>Case 3 — thumbHeight=100（只设 height，width 等比推算）</h3>
+    <input id="input3" type="file" accept="image/*">
+    <div class="log" id="log3">选择图片后显示结果…</div>
+    <div class="thumb-box" id="box3"></div>
+  </div>
+
+  <div class="case">
+    <h3>Case 4 — 不传 options（返回原始 file，尺寸不变）</h3>
+    <input id="input4" type="file" accept="image/*">
+    <div class="log" id="log4">选择图片后显示结果…</div>
+    <div class="thumb-box" id="box4"></div>
+  </div>
+
+  <script type="module">
+    import { imageFileToThumbFile } from '../src/index.js'
+
+    function loadImg(src) {
+      return new Promise(r => { const img = new Image(); img.onload = () => r(img); img.src = src })
+    }
+
+    function ok(label, pass, detail = '') {
+      return `<span class="${pass ? 'pass' : 'fail'}">[${pass ? 'PASS' : 'FAIL'}] ${label}</span>${detail ? ' → ' + detail : ''}\n`
+    }
+
+    async function run(inputId, logId, boxId, options) {
+      document.querySelector(inputId).onchange = async (e) => {
+        const file = e.target.files[0]
+        const orig = await loadImg(URL.createObjectURL(file))
+        // 测试 imageFileToThumbFile 函数
+        const thumbFile = await imageFileToThumbFile(file, options)
+        const thumb = await loadImg(URL.createObjectURL(thumbFile))
+
+        const box = document.querySelector(boxId)
+        const img = new Image();
+        img.src = URL.createObjectURL(thumbFile)
+        box.innerHTML = '';
+        box.append(img)
+
+        let log = `原图: ${orig.naturalWidth}×${orig.naturalHeight}\n`
+        log += `选项: ${JSON.stringify(options)}\n`
+        log += `缩略图: ${thumb.naturalWidth}×${thumb.naturalHeight}\n`
+
+        const { thumbWidth, thumbHeight } = options
+        if (thumbWidth && thumbHeight) {
+          // both set → scale by thumbWidth, height proportional
+          const expectedH = Math.round((orig.naturalHeight / orig.naturalWidth) * thumbWidth)
+          log += ok('宽度 = thumbWidth', thumb.naturalWidth === thumbWidth, `${thumb.naturalWidth} === ${thumbWidth}`)
+          log += ok('高度等比（基于 thumbWidth）', thumb.naturalHeight === expectedH, `${thumb.naturalHeight} === ${expectedH}`)
+        } else if (thumbWidth && !thumbHeight) {
+          const expectedH = Math.round((orig.naturalHeight / orig.naturalWidth) * thumbWidth)
+          log += ok('宽度 = thumbWidth', thumb.naturalWidth === thumbWidth, `${thumb.naturalWidth} === ${thumbWidth}`)
+          log += ok('高度等比', thumb.naturalHeight === expectedH, `${thumb.naturalHeight} === ${expectedH}`)
+        } else if (!thumbWidth && thumbHeight) {
+          const expectedW = Math.round((orig.naturalWidth / orig.naturalHeight) * thumbHeight)
+          log += ok('高度 = thumbHeight', thumb.naturalHeight === thumbHeight, `${thumb.naturalHeight} === ${thumbHeight}`)
+          log += ok('宽度等比', thumb.naturalWidth === expectedW, `${thumb.naturalWidth} === ${expectedW}`)
+        } else {
+          log += ok('尺寸与原图相同（无缩放）', thumb.naturalWidth === orig.naturalWidth && thumb.naturalHeight === orig.naturalHeight)
+          log += ok('返回的是原始 File 对象', thumbFile === file)
+        }
+
+        document.querySelector(logId).innerHTML = log
+      }
+    }
+
+    run('#input1', '#log1', '#box1', { thumbWidth: 200, thumbHeight: 200 })
+    run('#input2', '#log2', '#box2', { thumbWidth: 200 })
+    run('#input3', '#log3', '#box3', { thumbHeight: 100 })
+    run('#input4', '#log4', '#box4', {})
+  </script>
+</body>
+
+</html>

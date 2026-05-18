@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>test: getBigImageSectionFiles</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 16px;
+      max-width: 1500px;
+    }
+
+    .case {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .log {
+      background: #f5f5f5;
+      padding: 8px;
+      font-size: 12px;
+      margin-top: 8px;
+      white-space: pre-wrap;
+      min-height: 32px;
+      border-radius: 2px;
+    }
+
+    .pass {
+      color: #2a2;
+    }
+
+    .fail {
+      color: #c22;
+    }
+
+    .image-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 8px;
+      min-height: 20px;
+    }
+
+    .image-box img {
+      border: 1px solid #ccc;
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>test: getBigImageSectionFiles</h2>
+
+  <div class="case">
+    <h3>Case 1 — horizontal, allowZoom=true, sectionWidth=750, sectionHeight=200</h3>
+    <input id="inputH" type="file" accept="image/*">
+    <div class="log" id="logH">选择图片后显示结果…</div>
+    <div class="image-box" id="boxH"></div>
+  </div>
+
+  <div class="case">
+    <h3>Case 2 — vertical, allowZoom=false, sectionWidth=200</h3>
+    <input id="inputV" type="file" accept="image/*">
+    <div class="log" id="logV">选择图片后显示结果…</div>
+    <div class="image-box" id="boxV"></div>
+  </div>
+
+  <script type="module">
+    import { getBigImageSectionFiles } from '../src/index.js'
+
+    function loadImg(src) {
+      return new Promise(r => { const img = new Image(); img.onload = () => r(img); img.src = src })
+    }
+
+    function fileToDataURL(file) {
+      return new Promise(r => { const fr = new FileReader(); fr.onload = e => r(e.target.result); fr.readAsDataURL(file) })
+    }
+
+    function ok(label, pass, detail = '') {
+      return `<span class="${pass ? 'pass' : 'fail'}">[${pass ? 'PASS' : 'FAIL'}] ${label}</span>${detail ? ' → ' + detail : ''}\n`
+    }
+
+    document.querySelector('#inputH').onchange = async (e) => {
+      const file = e.target.files[0]
+      const options = { sectionWidth: 750, sectionHeight: 200, cutDirection: 'horizontal', allowZoom: true }
+      const orig = await loadImg(URL.createObjectURL(file))
+      const files = await getBigImageSectionFiles(file, options)
+
+      const scaledH = Math.round(orig.naturalHeight * options.sectionWidth / orig.naturalWidth)
+      const expectedCount = Math.ceil(scaledH / options.sectionHeight)
+
+      const box = document.querySelector('#boxH')
+      box.innerHTML = ''
+      for (const f of files) {
+        const img = new Image(); img.src = await fileToDataURL(f); box.append(img)
+      }
+
+      let log = `原图: ${orig.naturalWidth}×${orig.naturalHeight}  缩放后高度: ${scaledH}\n`
+      log += `期望切片数: ${expectedCount}  实际切片数: ${files.length}\n`
+      log += ok('切片数正确', files.length === expectedCount, `${files.length} === ${expectedCount}`)
+      log += ok('返回 File 类型', files.every(f => f instanceof File))
+      log += ok('文件名格式 section-N.png', files.every((f, i) => f.name === `section-${i}.png`))
+      document.querySelector('#logH').innerHTML = log
+    }
+
+    document.querySelector('#inputV').onchange = async (e) => {
+      const file = e.target.files[0]
+      const options = { sectionWidth: 200, cutDirection: 'vertical', allowZoom: false }
+      const orig = await loadImg(URL.createObjectURL(file))
+      const files = await getBigImageSectionFiles(file, options)
+
+      const expectedCount = Math.ceil(orig.naturalWidth / options.sectionWidth)
+
+      const box = document.querySelector('#boxV')
+      box.innerHTML = ''
+      for (const f of files) {
+        const img = new Image(); img.src = await fileToDataURL(f); box.append(img)
+      }
+
+      let log = `原图: ${orig.naturalWidth}×${orig.naturalHeight}\n`
+      log += `期望切片数: ${expectedCount}  实际切片数: ${files.length}\n`
+      log += ok('切片数正确', files.length === expectedCount, `${files.length} === ${expectedCount}`)
+      log += ok('返回 File 类型', files.every(f => f instanceof File))
+      document.querySelector('#logV').innerHTML = log
+    }
+  </script>
+</body>
+
+</html>
